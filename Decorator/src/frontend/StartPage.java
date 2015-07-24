@@ -12,6 +12,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Font;
 import java.awt.Insets;
 import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class StartPage extends JPanel {
 
@@ -43,6 +45,7 @@ public class StartPage extends JPanel {
 		add(lblWhatWouldYou, gbc_lblWhatWouldYou);
 		
 		JButton btnCreateNewRoom = new JButton("Create new room");
+
 		GridBagConstraints gbc_btnCreateNewRoom = new GridBagConstraints();
 		gbc_btnCreateNewRoom.anchor = GridBagConstraints.WEST;
 		gbc_btnCreateNewRoom.insets = new Insets(0, 0, 5, 5);
@@ -81,6 +84,16 @@ public class StartPage extends JPanel {
 		gbc_btnEditExitingFurniture.gridy = 6;
 		add(btnEditExitingFurniture, gbc_btnEditExitingFurniture);
 
+		
+		
+		btnCreateNewRoom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				Driver.roomFrame = new CreateRoom();
+				Driver.roomFrame.setVisible(true);
+			}
+		});
+		
 	}
 
 }

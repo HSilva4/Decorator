@@ -18,6 +18,7 @@ public class Driver extends JFrame {
 	protected static JPanel loginPanel;
 	protected static JPanel registrationPanel;
 	protected static JPanel startPanel;
+	protected static JFrame roomFrame;
 	
 	public static Main main;
 
