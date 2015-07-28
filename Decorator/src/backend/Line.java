@@ -10,7 +10,7 @@ public class Line extends Polygon{
 	private int firstY;
 	private int secondX;
 	private int secondY;
-	private Color color = Color.RED;
+	private Color color;
 	
 	
 	public Line(int x1, int y1, int x2, int y2) {
@@ -20,7 +20,18 @@ public class Line extends Polygon{
 		this.secondY = y2;
 		this.addPoint(x1, y1);
 		this.addPoint(x2, y2);
+		color = color.RED;
 		
+	}
+
+
+	public Color getColor() {
+		return color;
+	}
+
+
+	public void setColor(Color color) {
+		this.color = color;
 	}
 
 

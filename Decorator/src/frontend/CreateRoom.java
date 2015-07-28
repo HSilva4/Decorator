@@ -3,14 +3,19 @@ package frontend;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 
 import backend.Circle;
 import backend.Line;
@@ -19,12 +24,22 @@ import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
+
+import javax.swing.JButton;
+
+import java.awt.Insets;
 
 public class CreateRoom extends JFrame {
 
 	private static final int DRAWING_SIZE = 600;
 	private static final int SUBDIVISIONS = 15;
 	private static final int SUBDIVISION_SIZE = DRAWING_SIZE / SUBDIVISIONS;
+
+	private JToggleButton addLine = new JToggleButton("Add Line");
+
+	private JToggleButton deleteLine = new JToggleButton("Delete Line");
+	private JToggleButton editLine = new JToggleButton("Edit Line");
 
 	private static ArrayList<Circle> circles = new ArrayList<Circle>();
 	private static ArrayList<Line> lines = new ArrayList<Line>();
@@ -53,6 +68,7 @@ public class CreateRoom extends JFrame {
 		public void mouseMoved(MouseEvent e) {
 			int mouseX = e.getX() - 100;
 			int mouseY = e.getY() - 100;
+			//			System.out.println(mouseX + " " + mouseY);
 
 			for (Circle c : circles) {
 				if ((mouseX >= c.getX() - 15 && mouseX <= c.getX() + 15) &&
@@ -67,42 +83,76 @@ public class CreateRoom extends JFrame {
 				}
 
 			}
+
 		}
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			if (firstClick) {
+			int mouseX = e.getX() - 100;
+			int mouseY = e.getY() - 100;
 
-				firstClickX = e.getX() - 100;
-				firstClickY = e.getY() - 100;
-
-				for (Circle c : circles) {
-					if ((firstClickX >= c.getX() - 15 && firstClickX <= c.getX() + 15) &&
-							(firstClickY >= c.getY() - 15 && firstClickY <= c.getY() + 15) ) {
-
-						firstCircle = c;
-					}
-				}
-
-				firstClick = false;
-			} else {
-
-				secondClickX = e.getX() - 100;
-				secondClickY = e.getY() - 100;
-
-				for (Circle c : circles) {
-					if ((secondClickX >= c.getX() - 15 && secondClickX <= c.getX() + 15) &&
-							(secondClickY >= c.getY() - 15 && secondClickY <= c.getY() + 15) ) {
-
-						secondCircle = c;
-					}
-				}
-				Line l = new Line(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY());
-				lines.add(l);
-//				drawLineHelper(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY());
+			if (addLine.isSelected()) {
 				
-				firstClick = true;
-				repaint();
+				if (firstClick) {
+
+					firstClickX = mouseX;
+					firstClickY = mouseY;
+
+					for (Circle c : circles) {
+						if ((firstClickX >= c.getX() - 15 && firstClickX <= c.getX() + 15) &&
+								(firstClickY >= c.getY() - 15 && firstClickY <= c.getY() + 15) ) {
+
+							firstCircle = c;
+							firstClick = false;
+						}
+					}
+				} else {
+
+					secondClickX = mouseX;
+					secondClickY = mouseY;
+
+					for (Circle c : circles) {
+						if ((secondClickX >= c.getX() - 15 && secondClickX <= c.getX() + 15) &&
+								(secondClickY >= c.getY() - 15 && secondClickY <= c.getY() + 15) ) {
+
+							secondCircle = c;
+							firstClick = true;
+						}
+					}
+					Line l = new Line(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY());
+					lines.add(l);
+
+					repaint();
+				}
+			}
+			else if (deleteLine.isSelected()) {
+
+				int boxX = mouseX - 8;
+				int boxY = mouseY - 8;
+
+				int width = 16;
+				int height = 16;
+
+				Iterator<Line> i = lines.iterator();
+				while (i.hasNext()) {
+					Line l = i.next();
+					if (l.intersects(boxX, boxY, width, height)) {
+						i.remove();
+						repaint();
+					}
+					
+				}
+				
+				
+//				for (Line l : lines) {
+//					if (l.intersects(boxX, boxY, width, height)) {
+////						l.setColor(Color.GREEN);
+//						lines.remove(l);
+//						repaint();
+//					}
+//				}
+
+
 			}
 		}
 
@@ -141,12 +191,22 @@ public class CreateRoom extends JFrame {
 	 * Create the panel.
 	 */
 	public CreateRoom() {
+		this.setTitle("Room Creator");
+
 		setSize(800,800);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation(dim.width/2 - getSize().width/2, dim.height/2 - getSize().height/2);
 		setResizable(false);
-		setLayout(new GridBagLayout());
+		getContentPane().setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(0, 0, 5, 0);
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		//		JLabel roomCreator = new JLabel("Room Creator");
+		//		gbc.anchor = GridBagConstraints.SOUTH;
+		//		roomCreator.setFont(new Font("Serif", Font.BOLD, 16));
+		//		getContentPane().add(roomCreator, gbc);
+		addLine.setSelected(true);
 
 		addMouseListener(mouseListener);
 		addMouseMotionListener(mouseListener);
@@ -188,16 +248,16 @@ public class CreateRoom extends JFrame {
 				}
 
 				first = false;
-				
+
 				for (Line l : lines) {
-					g2.setPaint(Color.RED);
+					g2.setPaint(l.getColor());
 					g2.setStroke(new BasicStroke(3));
 					g2.drawLine(l.getFirstX(), l.getFirstY(), l.getSecondX(), l.getSecondY());
-					
+
 				}
 
 			}   
-			
+
 			@Override
 			public void update(Graphics g) {
 				paint(g);
@@ -211,7 +271,25 @@ public class CreateRoom extends JFrame {
 
 		gbc.gridy++;
 		gbc.anchor = GridBagConstraints.CENTER;
-		add(panel, gbc);
+		getContentPane().add(panel, gbc);
+
+		ButtonGroup bg = new ButtonGroup();
+
+		bg.add(addLine);
+		bg.add(deleteLine);
+		bg.add(editLine);
+
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.add(addLine);
+		buttonPanel.add(deleteLine);
+		buttonPanel.add(editLine);
+		getContentPane().add(buttonPanel);
+
+		JButton btnSaveRoom = new JButton("Save Room");
+		GridBagConstraints gbc_btnSaveRoom = new GridBagConstraints();
+		gbc_btnSaveRoom.gridx = 0;
+		gbc_btnSaveRoom.gridy = 3;
+		getContentPane().add(btnSaveRoom, gbc_btnSaveRoom);
 
 		//		JOptionPane.showMessageDialog(null, "the hell? " + circles.size());
 		//		for (Circle c : circles) {
